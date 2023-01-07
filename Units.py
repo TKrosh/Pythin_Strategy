@@ -1,7 +1,8 @@
 import pygame
 
 
-class Cell:
+class MovingCell:
+    """класс Клекти на которые может ходить конкрентый юнит"""
     def __init__(self, energy):
         self.height, self.weight = 50, 50
         self.energy = energy
@@ -19,11 +20,17 @@ class Cell:
     def moving(self, board, y, x):
         pass
 
+    def change_position(self, board, x, y, los_x, loc_y):
+        board[x][y] = board[los_x][loc_y]
+        board[los_x][loc_y] = 0
+
 
 class Unit:
+    """основной класс всех юнитов"""
     def __init__(self):
         self.image = pygame.image
         self.energy = 0
+        self.move = False
 
     def show(self, screen, pos_x, pos_y):
         screen.blit(self.image, (pos_y * 50, pos_x * 50 + 200))
@@ -32,40 +39,38 @@ class Unit:
         return int(self.energy)
 
     def limit(self, num, lim=30):
+        """чтобы ходы не просчитывались по тору"""
         if num < 0:
             return int(0)
-        elif num >= lim:
-            return int(lim - 1)
+        elif num >= lim - 1:
+            return int(lim)
         else:
             return int(num)
 
     def moving(self, board, q, i):
-        limx = len(board)
-        limy = len(board[0])
+        limy = len(board)
+        limx = len(board[0])
         a = board[i][q].get_energy()
-        for _ in range(4):
-            for x in range(self.limit(q - a), self.limit(q + a + 1, limx)):
-                for y in range(self.limit(i - a), self.limit(i + a + 1, limy)):
-                    if board[x][y] != 0:
+        """просчитываем все возможные ходы несколько раз проходя по доске"""
+        print(self.limit(q + a, limx))
+        for _ in range(a - 1):
+            for x in range(self.limit(i - a - 1), self.limit(i + a, limy)):
+                for y in range(self.limit(q - a - 1), self.limit(q + a, limx)):
+                    if (board[x][y] != 0 and not isinstance(board[x][y], Unit)) or (x == i and y == q):
                         amount = board[x][y].get_energy()
+                        """использыем try, чтобы не делать ещё по 4 проверки на выход за границы поля"""
                         try:
+                            """если на месте просчитываемой клетке ничего нет, тогда заменяем значение"""
                             if board[self.limit(x - 1)][y] == 0 and (amount - 1) > 0:
-                                board[self.limit(x - 1)][y] = Cell(amount - 1)
+                                board[self.limit(x - 1)][y] = MovingCell(amount - 1)
                             if board[self.limit(x + 1, limx)][y] == 0 and (amount - 1) > 0:
-                                board[self.limit(x + 1, limx)][y] = Cell(amount - 1)
+                                board[self.limit(x + 1, limx)][y] = MovingCell(amount - 1)
                             if board[x][self.limit(y - 1)] == 0 and (amount - 1) > 0:
-                                board[x][self.limit(y - 1)] = Cell(amount - 1)
+                                board[x][self.limit(y - 1)] = MovingCell(amount - 1)
                             if board[x][self.limit(y + 1)] == 0 and (amount - 1) > 0:
-                                board[x][self.limit(y + 1)] = Cell(amount - 1)
+                                board[x][self.limit(y + 1)] = MovingCell(amount - 1)
                         except Exception:
                             pass
-        for i in range(len(board)):
-            for q in range(len(board[i])):
-                if board[i][q] != 0:
-                    print(board[i][q].get_energy(), end='')
-                else:
-                    print(0, end='')
-            print()
 
 
 class Swordman(Unit):
@@ -73,6 +78,20 @@ class Swordman(Unit):
         super().__init__()
         self.image = pygame.image.load('data/brave_sword.png')
         self.energy = 5
+
+
+class longBow(Unit):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load('data/longbow.png')
+        self.energy = 5
+
+
+class Evilwithard(Unit):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load('data/evil_withard.png')
+        self.energy = 8
 
 
 class Evilenemy(Unit):

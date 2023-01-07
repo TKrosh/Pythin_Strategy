@@ -1,5 +1,5 @@
 import pygame
-from Units import Swordman, Evilenemy
+from Units import Swordman, Evilenemy, Unit, MovingCell, Evilwithard, longBow
 
 
 class Board:
@@ -10,6 +10,7 @@ class Board:
         self.left = 10
         self.top = 10
         self.cell_size = 50
+        self.U_x, self.U_y = 0, 0
 
     def set_view(self, left, top, cell_size):
         self.left = left
@@ -38,15 +39,27 @@ class Board:
         else:
             return False
 
-    def get_click(self, mouse_pos):
+    def get_click(self, mouse_pos, go):
         cell = self.get_cell(mouse_pos)
-        self.on_click(cell)
+        self.on_click(cell, go)
 
-    def on_click(self, coords):
+    def on_click(self, coords, go):
         if coords:
             y, x = coords
-            if self.board[x][y] != 0:
-                self.board[x][y].moving(self.board, y, x)
+            if isinstance(self.board[x][y], Unit):
+                self.clean_cell()
+                self.U_x, self.U_y = x, y
+                self.board[self.U_x][self.U_y].moving(self.board, self.U_y, self.U_x)
+            if isinstance(self.board[x][y], MovingCell) and go:
+                self.board[x][y].change_position(self.board, x, y, self.U_x, self.U_y)
+                self.clean_cell()
+
+    def clean_cell(self):
+        """очищаем поле от клеток на которые может ходить другой юнит"""
+        for x in range(self.height):
+            for y in range(self.width):
+                if isinstance(self.board[x][y], MovingCell):
+                    self.board[x][y] = 0
 
 
 if __name__ == '__main__':
@@ -57,16 +70,25 @@ if __name__ == '__main__':
     screen = pygame.display.set_mode(size)
     board = Board(30, 12)
     board.set_view(0, 200, 50)
-    player_army, evil_army = Swordman(), Evilenemy()
-    board.change(5, 5, player_army)
-    board.change(-1, 0, evil_army)
+    swordman, evilswordman = Swordman(), Evilenemy()
+    longbow, withard = longBow(), Evilwithard()
+    board.change(5, 5, swordman)
+    board.change(-1, 0, evilswordman)
+    board.change(5, 4, longbow)
+    board.change(29, 2, withard)
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                board.get_click(event.pos)
+                if event.button == 1:
+                    """переменные следовало назвать по другому,
+                    вместо 0 - prepare, вместе 1 - go,
+                    но тогда бы проверка была бы не красивой"""
+                    board.get_click(event.pos, 0)
+                if event.button == 3:
+                    board.get_click(event.pos, 1)
         screen.blit(prepared_bg, (0, 0))
         board.render(screen)
         pygame.display.flip()
