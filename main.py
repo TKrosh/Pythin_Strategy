@@ -46,10 +46,12 @@ class Board:
     def on_click(self, coords, go):
         if coords:
             y, x = coords
-            if isinstance(self.board[x][y], Unit):
+            if isinstance(self.board[x][y], Unit) and not go:
                 self.clean_cell()
+                """self.U_x, self.U_y - переменные обозначающие с каким юнитом работают"""
                 self.U_x, self.U_y = x, y
-                self.board[self.U_x][self.U_y].moving(self.board, self.U_y, self.U_x)
+                self.board[x][y].choose()
+                self.board[x][y].moving(self.board, y, x)
             if isinstance(self.board[x][y], MovingCell) and go:
                 self.board[x][y].change_position(self.board, x, y, self.U_x, self.U_y)
                 self.clean_cell()
@@ -71,11 +73,8 @@ if __name__ == '__main__':
     board = Board(30, 12)
     board.set_view(0, 200, 50)
     swordman, evilswordman = Swordman(), Evilenemy()
-    longbow, withard = longBow(), Evilwithard()
     board.change(5, 5, swordman)
-    board.change(-1, 0, evilswordman)
-    board.change(5, 4, longbow)
-    board.change(29, 2, withard)
+    board.change(6, 5, evilswordman)
     running = True
     while running:
         for event in pygame.event.get():
@@ -83,9 +82,7 @@ if __name__ == '__main__':
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    """переменные следовало назвать по другому,
-                    вместо 0 - prepare, вместе 1 - go,
-                    но тогда бы проверка была бы не красивой"""
+                    """0 - выбор юнита, 1 - ход юнитом"""
                     board.get_click(event.pos, 0)
                 if event.button == 3:
                     board.get_click(event.pos, 1)
