@@ -29,16 +29,22 @@ class Unit:
     """основной класс всех юнитов"""
     def __init__(self):
         self.image = pygame.image
-        self.energy, self.damege, self.protection, self.heath, self.distance, self.amount = 0, 0, 0, 0, 0, 1
+        self.parametres = self.energy, self.damege, self.protection, \
+                          self.heath, self.distance, self.amount = 0, 0, 0, 0, 1, 1
         self.player_side = 0
         self.choosen_Unit = False
         self.move = False
 
     def show(self, screen, pos_x, pos_y):
         self.screen = screen
+        """показать количество юнитов одного класса"""
+
         font = pygame.font.SysFont('', 22)
+        """выбрать шрифт"""
         bg_font = (170, 191, 255)
+        """цвет фона"""
         amount_units = font.render(str(self.amount), bg_font, (0, 0, 0))
+        """сохранение текста"""
         y, x = pos_y * 50 + 15, pos_x * 50 + 239
         screen.blit(self.image, (pos_y * 50, pos_x * 50 + 200))
         pygame.draw.rect(screen, bg_font, ((y, x), (26, 10)), width=0)
@@ -58,12 +64,17 @@ class Unit:
         else:
             return int(num)
 
-    def choose(self):
-        self.choosen_Unit = True
+    def choose(self, show):
+        self.choosen_Unit = show
 
     def showinfo(self, screen):
         infoimage = pygame.image.load('data/unitinfo.png')
         screen.blit(infoimage, (0, 0))
+        for i in range(5):
+            font = pygame.font.SysFont('', 22)
+            amount_units = font.render(str(self.parametres[i]), (0, 0, 0), (0, 0, 0))
+            y, x = 180, i * 40 + 10
+            screen.blit(amount_units, (y, x))
 
     def moving(self, board, q, i):
         limy = len(board)
@@ -89,34 +100,60 @@ class Unit:
                         except Exception:
                             pass
 
-    def atack(self):
-        pass
+    def atack(self, other):
+        """получаетм сумму здоровья и брони всего отряда НА который напали"""
+        enamy_summary_HP = other.health * other.amount + other.protection * other.amount
+        """получаем суммарный урон АТАКУЮЩЕГО отряда"""
+        self_damage = self.damege * self.amount
+        enamy_sum_HP_after_fight = enamy_summary_HP - self_damage
+        if enamy_sum_HP_after_fight <= 0:
+            other.death()
+        else:
+            """если отряд не убавает сразу, то получаем оставшихся в живых членов отряда 
+            + те которые имеют какие-то повреждения"""
+            one_unit_parametres = other.health + other.protection
+            enamy_amount_after_fight = enamy_sum_HP_after_fight // (one_unit_parametres)
+            if enamy_sum_HP_after_fight % one_unit_parametres != 0:
+                other.get_atacked(enamy_amount_after_fight + 1)
+            else:
+                other.get_atacked(enamy_amount_after_fight)
+
+    def get_atacked(self, remain):
+        """расчёт оставшихся параметров ХП и брони"""
+        self.amount = remain
+
+    def death(self):
+        self.amount = 0
 
 
 class Swordman(Unit):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load('data/brave_sword.png')
-        self.energy, self.damege, self.protection, self.heath = 8, 4, 3, 10
+        self.parametres = self.health, self.damege, self.energy, \
+                          self.protection, self.distance, self.amount = 10, 4, 8, 3, 1, 10
 
 
 class longBow(Unit):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load('data/longbow.png')
-        self.energy, self.damege, self.protection, self.heath = 5, 8, 0, 10
+        self.parametres = self.health, self.damege, self.energy, \
+                          self.protection, self.distance, self.amount = 5, 8, 0, 10, 12, 1
 
 
 class Evilwithard(Unit):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load('data/evil_withard.png')
-        self.energy, self.damege, self.protection, self.heath = 5, 12, 0, 7
+        self.parametres = self.health, self.damege, self.energy, \
+                          self.protection, self.distance, self.amount = 5, 12, 0, 7, 7, 1
 
 
 class Evilenemy(Unit):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load('data/evil_sword.png')
-        self.energy, self.damege, self.protection, self.heath = 8, 4, 3, 10
+        self.parametres = self.health, self.damege, self.energy, \
+                          self.protection, self.distance, self.amount = 10, 4, 8, 3, 1, 10
 

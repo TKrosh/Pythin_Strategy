@@ -49,12 +49,25 @@ class Board:
             if isinstance(self.board[x][y], Unit) and not go:
                 self.clean_cell()
                 """self.U_x, self.U_y - переменные обозначающие с каким юнитом работают"""
+                if isinstance(self.board[self.U_x][self.U_y], Unit):
+                    self.board[self.U_x][self.U_y].choose(False)
                 self.U_x, self.U_y = x, y
-                self.board[x][y].choose()
+                self.board[x][y].choose(True)
                 self.board[x][y].moving(self.board, y, x)
-            if isinstance(self.board[x][y], MovingCell) and go:
+            elif isinstance(self.board[x][y], Unit) and go and (x != self.U_x or y != self.U_y):
+                self.clean_cell()
+                """self.U_x, self.U_y - переменные обозначающие с каким юнитом работают"""
+                if isinstance(self.board[self.U_x][self.U_y], Unit):
+                    self.board[self.U_x][self.U_y].choose(False)
+                    self.clean_cell()
+                self.board[self.U_x][self.U_y].atack(self.board[x][y])
+            elif isinstance(self.board[x][y], MovingCell) and go:
                 self.board[x][y].change_position(self.board, x, y, self.U_x, self.U_y)
                 self.clean_cell()
+            else:
+                if isinstance(self.board[self.U_x][self.U_y], Unit) and (x != self.U_x or y != self.U_y):
+                    self.board[self.U_x][self.U_y].choose(False)
+
 
     def clean_cell(self):
         """очищаем поле от клеток на которые может ходить другой юнит"""
