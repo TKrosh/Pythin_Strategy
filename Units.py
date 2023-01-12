@@ -29,16 +29,20 @@ class Unit:
     """основной класс всех юнитов"""
     def __init__(self):
         self.image = pygame.image
-        self.parametres = self.energy, self.damege, self.protection, \
-                          self.heath, self.distance, self.amount = 0, 0, 0, 0, 1, 1
+        self.energy, self.damege, self.protection, \
+                          self.health, self.distance, self.amount = 0, 0, 0, 0, 1, 1
         self.player_side = 0
         self.choosen_Unit = False
         self.move = False
 
+    def changabel_parametres(self, health, protection):
+        self.current_protection, self.current_health = protection, health
+        self.current_parametres = self.current_health, self.damege, self.energy, \
+                                  self.current_protection, self.distance, self.amount
+
     def show(self, screen, pos_x, pos_y):
         self.screen = screen
         """показать количество юнитов одного класса"""
-
         font = pygame.font.SysFont('', 22)
         """выбрать шрифт"""
         bg_font = (170, 191, 255)
@@ -68,11 +72,12 @@ class Unit:
         self.choosen_Unit = show
 
     def showinfo(self, screen):
+        """вывод информации о юните"""
         infoimage = pygame.image.load('data/unitinfo.png')
         screen.blit(infoimage, (0, 0))
         for i in range(5):
             font = pygame.font.SysFont('', 22)
-            amount_units = font.render(str(self.parametres[i]), (0, 0, 0), (0, 0, 0))
+            amount_units = font.render(str(self.current_parametres[i]), (0, 0, 0), (0, 0, 0))
             y, x = 180, i * 40 + 10
             screen.blit(amount_units, (y, x))
 
@@ -102,10 +107,11 @@ class Unit:
 
     def atack(self, other):
         """получаетм сумму здоровья и брони всего отряда НА который напали"""
-        enamy_summary_HP = other.health * other.amount + other.protection * other.amount
+        enamy_summary_HP = other.health * (other.amount - 1) + other.protection * (other.amount - 1) \
+                           + other.current_health + other.current_protection
         """получаем суммарный урон АТАКУЮЩЕГО отряда"""
-        self_damage = self.damege * self.amount
-        enamy_sum_HP_after_fight = enamy_summary_HP - self_damage
+        damage = self.damege * self.amount
+        enamy_sum_HP_after_fight = enamy_summary_HP - damage
         if enamy_sum_HP_after_fight <= 0:
             other.death()
         else:
@@ -114,12 +120,36 @@ class Unit:
             one_unit_parametres = other.health + other.protection
             enamy_amount_after_fight = enamy_sum_HP_after_fight // (one_unit_parametres)
             if enamy_sum_HP_after_fight % one_unit_parametres != 0:
-                other.get_atacked(enamy_amount_after_fight + 1)
+                other.get_atacked(enamy_amount_after_fight + 1, damage)
             else:
-                other.get_atacked(enamy_amount_after_fight)
+                other.get_atacked(enamy_amount_after_fight, damage)
 
-    def get_atacked(self, remain):
-        """расчёт оставшихся параметров ХП и брони"""
+    def get_atacked(self, remain, enamy_damage):
+        if enamy_damage != 0:
+            """расчёт оставшихся параметров ХП и брони"""
+            get_kiled = self.amount - remain
+            if enamy_damage - get_kiled * (self.health + self.protection) < 0:
+                get_kiled = get_kiled - 1
+            remain_damage = enamy_damage - get_kiled * (self.health + self.protection)
+            print('!', remain_damage)
+            if remain_damage <= self.current_protection:
+                self.current_protection -= remain_damage
+                self.changabel_parametres(self.current_health, self.current_protection)
+            elif (remain_damage - self.current_protection) < self.current_health:
+                remain_damage -= self.current_protection
+                self.current_protection = 0
+                self.current_health -= remain_damage
+            elif (remain_damage - self.current_protection) >= self.current_health:
+                remain_damage -= self.current_protection
+                self.current_protection = 0
+                remain -= 1
+                remain_damage -= self.current_health
+                print(remain_damage)
+                self.get_atacked(remain, enamy_damage) # 99, 3
+            if self.current_health == 0 and self.current_protection == 0:
+                self.changabel_parametres(self.health, self.protection)
+            else:
+                self.changabel_parametres(self.current_health, self.current_protection)
         self.amount = remain
 
     def death(self):
@@ -130,16 +160,20 @@ class Swordman(Unit):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load('data/brave_sword.png')
+        self.player_side = 1
         self.parametres = self.health, self.damege, self.energy, \
                           self.protection, self.distance, self.amount = 10, 4, 8, 3, 1, 10
+        self.changabel_parametres(self.health, self.protection)
 
 
-class longBow(Unit):
+class LongBow(Unit):
     def __init__(self):
         super().__init__()
+        self.player_side = 1
         self.image = pygame.image.load('data/longbow.png')
         self.parametres = self.health, self.damege, self.energy, \
-                          self.protection, self.distance, self.amount = 5, 8, 0, 10, 12, 1
+                          self.protection, self.distance, self.amount = 5, 8, 10, 0, 12, 1
+        self.changabel_parametres(self.health, self.protection)
 
 
 class Evilwithard(Unit):
@@ -155,5 +189,6 @@ class Evilenemy(Unit):
         super().__init__()
         self.image = pygame.image.load('data/evil_sword.png')
         self.parametres = self.health, self.damege, self.energy, \
-                          self.protection, self.distance, self.amount = 10, 4, 8, 3, 1, 10
+                          self.protection, self.distance, self.amount = 10, 4, 8, 3, 1, 100
+        self.changabel_parametres(self.health, self.protection)
 

@@ -1,5 +1,5 @@
 import pygame
-from Units import Swordman, Evilenemy, Unit, MovingCell, Evilwithard, longBow
+from Units import Swordman, Evilenemy, Unit, MovingCell, Evilwithard, LongBow
 
 
 class Board:
@@ -67,6 +67,7 @@ class Board:
             else:
                 if isinstance(self.board[self.U_x][self.U_y], Unit) and (x != self.U_x or y != self.U_y):
                     self.board[self.U_x][self.U_y].choose(False)
+                self.clean_cell()
 
 
     def clean_cell(self):
@@ -86,6 +87,8 @@ if __name__ == '__main__':
     board = Board(30, 12)
     board.set_view(0, 200, 50)
     swordman, evilswordman = Swordman(), Evilenemy()
+    longbowman = LongBow()
+    board.change(0, 0, longbowman)
     board.change(5, 5, swordman)
     board.change(6, 5, evilswordman)
     running = True
