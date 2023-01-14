@@ -10,7 +10,7 @@ class Board:
         self.left = 10
         self.top = 10
         self.cell_size = 50
-        self.U_x, self.U_y = 0, 0
+        self.U_x, self.U_y = -1, 0
 
     def set_view(self, left, top, cell_size):
         self.left = left
@@ -46,21 +46,27 @@ class Board:
     def on_click(self, coords, go):
         if coords:
             y, x = coords
-            if isinstance(self.board[x][y], Unit) and not go:
+            if isinstance(self.board[x][y], Unit):
                 self.clean_cell()
-                """self.U_x, self.U_y - переменные обозначающие с каким юнитом работают"""
-                if isinstance(self.board[self.U_x][self.U_y], Unit):
-                    self.board[self.U_x][self.U_y].choose(False)
-                self.U_x, self.U_y = x, y
-                self.board[x][y].choose(True)
-                self.board[x][y].moving(self.board, y, x)
-            elif isinstance(self.board[x][y], Unit) and go and (x != self.U_x or y != self.U_y):
-                self.clean_cell()
-                """self.U_x, self.U_y - переменные обозначающие с каким юнитом работают"""
-                if isinstance(self.board[self.U_x][self.U_y], Unit):
-                    self.board[self.U_x][self.U_y].choose(False)
-                    self.clean_cell()
-                self.board[self.U_x][self.U_y].atack(self.board[x][y])
+                """проверка нужна, чтобы при переключениии между юнитами спарйты с информацией 
+                не накладывалиь друг на друга"""
+                if self.U_x != -1:
+                    if isinstance(self.board[self.U_x][self.U_y], Unit):
+                        self.board[self.U_x][self.U_y].choose(False)
+                if not go:
+                    """self.U_x, self.U_y - переменные обозначающие с каким юнитом работают"""
+                    self.U_x, self.U_y = x, y
+                    """вывод информации о юните"""
+                    self.board[x][y].choose(True)
+                    self.board[x][y].moving(self.board, y, x)
+                elif go and (x != self.U_x or y != self.U_y):
+                    self.board[x][y].coords(x, y)
+                    self.board[x][y].get_board(self.board)
+                    """если унит убил другого унита то в self.board[self.U_x][self.U_y] = 0"""
+                    if isinstance(self.board[self.U_x][self.U_y], Unit):
+                        self.board[self.U_x][self.U_y].get_board(self.board)
+                        self.board[self.U_x][self.U_y].coords(self.U_x, self.U_y)
+                        self.board[self.U_x][self.U_y].atack(self.board[x][y])
             elif isinstance(self.board[x][y], MovingCell) and go:
                 self.board[x][y].change_position(self.board, x, y, self.U_x, self.U_y)
                 self.clean_cell()
