@@ -29,18 +29,15 @@ class Unit:
     """основной класс всех юнитов"""
     def __init__(self):
         self.image = pygame.image
+        self.health = 0
         self.energy, self.damege, self.protection, \
-                          self.health, self.distance, self.amount = 0, 0, 0, 0, 1, 1
-        self.player_side = 0
+                          self.curent_health, self.distance, self.amount = 0, 0, 0, self.health, 1, 1
+        self.side= 0
         self.choosen_Unit = False
         self.move = False
 
-    def changabel_parametres(self, health, protection):
-        self.current_protection, self.current_health = protection, health
-        self.current_parametres = self.current_health, self.damege, self.energy, \
-                                  self.current_protection, self.distance, self.amount
-
     def show(self, screen, pos_x, pos_y):
+
         self.screen = screen
         """показать количество юнитов одного класса"""
         font = pygame.font.SysFont('', 22)
@@ -72,12 +69,14 @@ class Unit:
         self.choosen_Unit = show
 
     def showinfo(self, screen):
+        self.parametres = self.curent_health, self.damege, self.energy, \
+                          self.protection, self.distance, self.amount
         """вывод информации о юните"""
         infoimage = pygame.image.load('data/unitinfo.png')
         screen.blit(infoimage, (0, 0))
         for i in range(5):
             font = pygame.font.SysFont('', 22)
-            amount_units = font.render(str(self.current_parametres[i]), (0, 0, 0), (0, 0, 0))
+            amount_units = font.render(str(self.parametres[i]), (0, 0, 0), (0, 0, 0))
             y, x = 180, i * 40 + 10
             screen.blit(amount_units, (y, x))
 
@@ -105,75 +104,78 @@ class Unit:
                         except Exception:
                             pass
 
-    def atack(self, other):
-        """получаетм сумму здоровья и брони всего отряда НА который напали"""
-        enamy_summary_HP = other.health * (other.amount - 1) + other.protection * (other.amount - 1) \
-                           + other.current_health + other.current_protection
-        """получаем суммарный урон АТАКУЮЩЕГО отряда"""
-        damage = self.damege * self.amount
-        enamy_sum_HP_after_fight = enamy_summary_HP - damage
-        if enamy_sum_HP_after_fight <= 0:
-            other.death()
+    def sing(self, num):
+        if num < 0:
+            return -1
+        elif num > 0:
+            return 1
         else:
-            """если отряд не убавает сразу, то получаем оставшихся в живых членов отряда 
-            + те которые имеют какие-то повреждения"""
-            one_unit_parametres = other.health + other.protection
-            enamy_amount_after_fight = enamy_sum_HP_after_fight // (one_unit_parametres)
-            if enamy_sum_HP_after_fight % one_unit_parametres != 0:
-                other.get_atacked(enamy_amount_after_fight + 1, damage)
-            else:
-                other.get_atacked(enamy_amount_after_fight, damage)
+            return num
 
-    def get_atacked(self, remain, enamy_damage):
-        if enamy_damage != 0:
-            """расчёт оставшихся параметров ХП и брони"""
-            get_kiled = self.amount - remain
-            if enamy_damage - get_kiled * (self.health + self.protection) < 0:
-                get_kiled = get_kiled - 1
-            remain_damage = enamy_damage - get_kiled * (self.health + self.protection)
-            print('!', remain_damage)
-            if remain_damage <= self.current_protection:
-                self.current_protection -= remain_damage
-                self.changabel_parametres(self.current_health, self.current_protection)
-            elif (remain_damage - self.current_protection) < self.current_health:
-                remain_damage -= self.current_protection
-                self.current_protection = 0
-                self.current_health -= remain_damage
-            elif (remain_damage - self.current_protection) >= self.current_health:
-                remain_damage -= self.current_protection
-                self.current_protection = 0
-                remain -= 1
-                remain_damage -= self.current_health
-                print(remain_damage)
-                self.get_atacked(remain, enamy_damage) # 99, 3
-            if self.current_health == 0 and self.current_protection == 0:
-                self.changabel_parametres(self.health, self.protection)
-            else:
-                self.changabel_parametres(self.current_health, self.current_protection)
-        self.amount = remain
+    def atack(self, other):
+        """получаем суммарный урон АТАКУЮЩЕГО отряда"""
+        if self.side != other.side:
+            i = int(self.damege - other.protection)
+            damage_koef = (1 + 0.1 * self.sing(i)) ** abs(i)
+            damage = int((self.damege * self.amount * damage_koef) // 1)
+            other.get_atacked(damage, self)
 
-    def death(self):
+    def get_atacked(self, enamy_damage, other):
+        remain_units = ((self.health * self.amount) - enamy_damage) / self.health
+        if remain_units <= 0:
+            self.death(other)
+        else:
+            if remain_units % 1 != 0:
+                remain_units = int(remain_units // 1)
+                self.curent_health = self.curent_health - (enamy_damage % self.health)
+                if self.curent_health <= 0:
+                    remain_units -= 1
+                    self.curent_health = self.health + self.curent_health
+            remain_units = int(remain_units // 1)
+            self.amount -= (self.amount - remain_units)
+
+    def coords(self, x, y):
+        self.x, self.y = x, y
+
+    def get_board(self, board):
+        self.board = board
+
+    def death(self, other):
         self.amount = 0
+        self.board[self.x][self.y] = self.board[other.x][other.y]
+        self.board[other.x][other.y] = 0
+        #print('!', self.x, self.y)
+        #print('!', other.x, other.y)
 
 
 class Swordman(Unit):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load('data/brave_sword.png')
-        self.player_side = 1
-        self.parametres = self.health, self.damege, self.energy, \
-                          self.protection, self.distance, self.amount = 10, 4, 8, 3, 1, 10
-        self.changabel_parametres(self.health, self.protection)
+        self.x, self.y = 0, 0
+        self.side = 1
+        self.health = 10
+        self.parametres = self.curent_health, self.damege, self.energy, \
+                          self.protection, self.distance, self.amount = self.health, 4, 8, 3, 1, 10
+
+
+class Evilenemy(Unit):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load('data/evil_sword.png')
+        self.health = 10
+        self.parametres = self.curent_health, self.damege, self.energy, \
+                          self.protection, self.distance, self.amount = self.health, 4, 8, 3, 1, 100
 
 
 class LongBow(Unit):
     def __init__(self):
         super().__init__()
-        self.player_side = 1
+        self.side = 1
         self.image = pygame.image.load('data/longbow.png')
-        self.parametres = self.health, self.damege, self.energy, \
-                          self.protection, self.distance, self.amount = 5, 8, 10, 0, 12, 1
-        self.changabel_parametres(self.health, self.protection)
+        self.health = 5
+        self.parametres = self.curent_health, self.damege, self.energy, \
+                          self.protection, self.distance, self.amount = self.health, 8, 10, 0, 12, 1
 
 
 class Evilwithard(Unit):
@@ -182,13 +184,4 @@ class Evilwithard(Unit):
         self.image = pygame.image.load('data/evil_withard.png')
         self.parametres = self.health, self.damege, self.energy, \
                           self.protection, self.distance, self.amount = 5, 12, 0, 7, 7, 1
-
-
-class Evilenemy(Unit):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.image.load('data/evil_sword.png')
-        self.parametres = self.health, self.damege, self.energy, \
-                          self.protection, self.distance, self.amount = 10, 4, 8, 3, 1, 100
-        self.changabel_parametres(self.health, self.protection)
 
