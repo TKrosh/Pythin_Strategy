@@ -20,7 +20,8 @@ class MovingCell:
     def moving(self, board, y, x):
         pass
 
-    def change_position(self, board, x, y, los_x, loc_y):
+    def change_position(self, board, x, y, los_x, loc_y, other):
+        #other.energy -= self.energy
         board[x][y] = board[los_x][loc_y]
         board[los_x][loc_y] = 0
 
@@ -29,16 +30,20 @@ class Unit:
     """основной класс всех юнитов"""
     def __init__(self):
         self.image = pygame.image
-        self.health = 0
-        self.energy, self.damege, self.protection, \
-                          self.curent_health, self.distance, self.amount = 0, 0, 0, self.health, 1, 1
-        self.side= 0
+        self.health, self.energy = 0, 0
+        self.curent_energy, self.damege, self.protection, \
+                          self.curent_health, self.distance, self.amount = self.energy, 0, 0, self.health, 1, 1
+        self.side = 0
         self.choosen_Unit = False
         self.move = False
 
-    def show(self, screen, pos_x, pos_y):
+    def refresh(self):
+        self.curent_energy = self.energy
 
-        self.screen = screen
+    def get_side(self):
+        return self.side
+
+    def show(self, screen, pos_x, pos_y):
         """показать количество юнитов одного класса"""
         font = pygame.font.SysFont('', 22)
         """выбрать шрифт"""
@@ -144,8 +149,6 @@ class Unit:
         self.amount = 0
         self.board[self.x][self.y] = self.board[other.x][other.y]
         self.board[other.x][other.y] = 0
-        #print('!', self.x, self.y)
-        #print('!', other.x, other.y)
 
 
 class Swordman(Unit):
@@ -154,9 +157,9 @@ class Swordman(Unit):
         self.image = pygame.image.load('data/brave_sword.png')
         self.x, self.y = 0, 0
         self.side = 1
-        self.health = 10
-        self.parametres = self.curent_health, self.damege, self.energy, \
-                          self.protection, self.distance, self.amount = self.health, 4, 8, 3, 1, 10
+        self.health, self.energy = 10, 8
+        self.parametres = self.curent_health, self.damege, self.curent_energy, \
+                          self.protection, self.distance, self.amount = self.health, 4, self.energy, 3, 1, 10
 
 
 class Evilenemy(Unit):
