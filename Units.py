@@ -1,5 +1,5 @@
 import pygame
-
+import random
 
 class MovingCell:
     """класс Клекти на которые может ходить конкрентый юнит"""
@@ -170,16 +170,16 @@ class Swordman(Unit):
         self.side = 1
         self.health, self.energy = 20, 8
         self.curent_health, self.damege, self.curent_energy, \
-                          self.protection, self.distance, self.amount = self.health, 6, self.energy, 3, 1, 123
+                          self.protection, self.distance, self.amount = self.health, 6, self.energy, 8, 1, 123
 
 
 class Evilenemy(Unit):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load('data/evil_sword.png')
-        self.health, self.energy = 21, 8
+        self.health, self.energy = 21, 10
         self.parametres = self.curent_health, self.damege, self.curent_energy, \
-                          self.protection, self.distance, self.amount = self.health, 7, self.energy, 3, 1, 100
+                          self.protection, self.distance, self.amount = self.health, 7, self.energy, 8, 1, random.randint(40, 100)
 
 
 class LongBow(Unit):
