@@ -21,7 +21,7 @@ class MovingCell:
         pass
 
     def change_position(self, board, x, y, los_x, loc_y, other):
-        #other.energy -= self.energy
+        other.curent_energy = self.energy
         board[x][y] = board[los_x][loc_y]
         board[los_x][loc_y] = 0
 
@@ -40,9 +40,6 @@ class Unit:
     def refresh(self):
         self.curent_energy = self.energy
 
-    def get_side(self):
-        return self.side
-
     def show(self, screen, pos_x, pos_y):
         """показать количество юнитов одного класса"""
         font = pygame.font.SysFont('', 22)
@@ -58,9 +55,6 @@ class Unit:
         if self.choosen_Unit:
             self.showinfo(screen)
 
-    def get_energy(self):
-        return int(self.energy)
-
     def limit(self, num, lim=30):
         """чтобы ходы не просчитывались по тору"""
         if num < 0:
@@ -70,17 +64,14 @@ class Unit:
         else:
             return int(num)
 
-    def choose(self, show):
-        self.choosen_Unit = show
-
     def showinfo(self, screen):
-        self.parametres = self.curent_health, self.damege, self.energy, \
+        self.parametres = self.curent_health, self.damege, self.curent_energy, \
                           self.protection, self.distance, self.amount
         """вывод информации о юните"""
         infoimage = pygame.image.load('data/unitinfo.png')
         screen.blit(infoimage, (0, 0))
+        font = pygame.font.SysFont('', 22)
         for i in range(5):
-            font = pygame.font.SysFont('', 22)
             amount_units = font.render(str(self.parametres[i]), (0, 0, 0), (0, 0, 0))
             y, x = 180, i * 40 + 10
             screen.blit(amount_units, (y, x))
@@ -117,13 +108,22 @@ class Unit:
         else:
             return num
 
+    def check_distance(self, other):
+        distance = abs(self.x - other.x) + abs(self.y - other.y)
+        if distance <= self.distance:
+            return True
+        else:
+            return False
+
     def atack(self, other):
-        """получаем суммарный урон АТАКУЮЩЕГО отряда"""
-        if self.side != other.side:
-            i = int(self.damege - other.protection)
-            damage_koef = (1 + 0.1 * self.sing(i)) ** abs(i)
-            damage = int((self.damege * self.amount * damage_koef) // 1)
-            other.get_atacked(damage, self)
+        if self.check_distance(other) and self.curent_energy != 0:
+            self.curent_energy = 0
+            """получаем суммарный урон АТАКУЮЩЕГО отряда"""
+            if self.side != other.side:
+                i = int(self.damege - other.protection)
+                damage_koef = (1 + 0.1 * self.sing(i)) ** abs(i)
+                damage = int((self.damege * self.amount * damage_koef) // 1)
+                other.get_atacked(damage, self)
 
     def get_atacked(self, enamy_damage, other):
         remain_units = ((self.health * self.amount) - enamy_damage) / self.health
@@ -139,16 +139,27 @@ class Unit:
             remain_units = int(remain_units // 1)
             self.amount -= (self.amount - remain_units)
 
+    def death(self, other):
+        self.amount = 0
+        if other.distance == 1:
+            self.board[self.x][self.y] = self.board[other.x][other.y]
+        self.board[self.x][self.y] = 0
+
+    """все костыли в одном месте =)"""
     def coords(self, x, y):
         self.x, self.y = x, y
 
+    def choose(self, show):
+        self.choosen_Unit = show
+
+    def get_energy(self):
+        return int(self.curent_energy)
+
+    def get_side(self):
+        return self.side
+
     def get_board(self, board):
         self.board = board
-
-    def death(self, other):
-        self.amount = 0
-        self.board[self.x][self.y] = self.board[other.x][other.y]
-        self.board[other.x][other.y] = 0
 
 
 class Swordman(Unit):
@@ -157,18 +168,18 @@ class Swordman(Unit):
         self.image = pygame.image.load('data/brave_sword.png')
         self.x, self.y = 0, 0
         self.side = 1
-        self.health, self.energy = 10, 8
-        self.parametres = self.curent_health, self.damege, self.curent_energy, \
-                          self.protection, self.distance, self.amount = self.health, 4, self.energy, 3, 1, 10
+        self.health, self.energy = 20, 8
+        self.curent_health, self.damege, self.curent_energy, \
+                          self.protection, self.distance, self.amount = self.health, 6, self.energy, 3, 1, 123
 
 
 class Evilenemy(Unit):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load('data/evil_sword.png')
-        self.health = 10
-        self.parametres = self.curent_health, self.damege, self.energy, \
-                          self.protection, self.distance, self.amount = self.health, 4, 8, 3, 1, 100
+        self.health, self.energy = 21, 8
+        self.parametres = self.curent_health, self.damege, self.curent_energy, \
+                          self.protection, self.distance, self.amount = self.health, 7, self.energy, 3, 1, 100
 
 
 class LongBow(Unit):
@@ -176,15 +187,16 @@ class LongBow(Unit):
         super().__init__()
         self.side = 1
         self.image = pygame.image.load('data/longbow.png')
-        self.health = 5
-        self.parametres = self.curent_health, self.damege, self.energy, \
-                          self.protection, self.distance, self.amount = self.health, 8, 10, 0, 12, 1
+        self.health, self.energy = 12, 6
+        self.curent_health, self.damege, self.curent_energy, \
+                          self.protection, self.distance, self.amount = self.health, 8, self.energy, 4, 12, 55
 
 
 class Evilwithard(Unit):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load('data/evil_withard.png')
-        self.parametres = self.health, self.damege, self.energy, \
-                          self.protection, self.distance, self.amount = 5, 12, 0, 7, 7, 1
+        self.health, self.energy = 10, 7
+        self.curent_health, self.damege, self.curent_energy, \
+                self.protection, self.distance, self.amount = self.health, 12, 4, 0, 15, 25
 
