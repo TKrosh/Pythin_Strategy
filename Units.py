@@ -1,6 +1,16 @@
 import pygame
 import random
 
+
+def sing(num):
+    if num < 0:
+        return -1
+    elif num > 0:
+        return 1
+    else:
+        return num
+
+
 class MovingCell:
     """класс Клекти на которые может ходить конкрентый юнит"""
     def __init__(self, energy):
@@ -100,14 +110,6 @@ class Unit:
                         except Exception:
                             pass
 
-    def sing(self, num):
-        if num < 0:
-            return -1
-        elif num > 0:
-            return 1
-        else:
-            return num
-
     def check_distance(self, other):
         distance = abs(self.x - other.x) + abs(self.y - other.y)
         if distance <= self.distance:
@@ -121,7 +123,7 @@ class Unit:
             """получаем суммарный урон АТАКУЮЩЕГО отряда"""
             if self.side != other.side:
                 i = int(self.damege - other.protection)
-                damage_koef = (1 + 0.1 * self.sing(i)) ** abs(i)
+                damage_koef = (1 + 0.1 * sing(i)) ** abs(i)
                 damage = int((self.damege * self.amount * damage_koef) // 1)
                 other.get_atacked(damage, self)
 
@@ -168,18 +170,9 @@ class Swordman(Unit):
         self.image = pygame.image.load('data/brave_sword.png')
         self.x, self.y = 0, 0
         self.side = 1
-        self.health, self.energy = 20, 8
+        self.health, self.energy = 20, 9
         self.curent_health, self.damege, self.curent_energy, \
                           self.protection, self.distance, self.amount = self.health, 6, self.energy, 8, 1, 123
-
-
-class Evilenemy(Unit):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.image.load('data/evil_sword.png')
-        self.health, self.energy = 21, 10
-        self.parametres = self.curent_health, self.damege, self.curent_energy, \
-                          self.protection, self.distance, self.amount = self.health, 7, self.energy, 8, 1, random.randint(40, 100)
 
 
 class LongBow(Unit):
@@ -192,6 +185,16 @@ class LongBow(Unit):
                           self.protection, self.distance, self.amount = self.health, 8, self.energy, 4, 12, 55
 
 
+class Evilenemy(Unit):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load('data/evil_sword.png')
+        self.health, self.energy = 21, 10
+        self.parametres = self.curent_health, self.damege, self.curent_energy, \
+                          self.protection, self.distance, self.amount = self.health, 7, self.energy, 8, 1, random.randint(40, 100)
+        self.target_points = (-1, -1)
+
+
 class Evilwithard(Unit):
     def __init__(self):
         super().__init__()
@@ -199,4 +202,5 @@ class Evilwithard(Unit):
         self.health, self.energy = 10, 7
         self.curent_health, self.damege, self.curent_energy, \
                 self.protection, self.distance, self.amount = self.health, 12, 4, 0, 15, 25
+        self.target_points = (-1, -1)
 
