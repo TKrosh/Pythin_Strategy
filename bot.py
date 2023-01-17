@@ -33,29 +33,38 @@ class Intelligence():
 
     def go(self):
         """передвижение"""
-
         for unit in self.army:
             x, y = self.army[unit]
-            x_way, y_way = self.find_way(unit)
-            unit.moving(self.board, y, x)
-            if isinstance(self.board[x_way][y_way], MovingCell):
-                self.board[x_way][y_way].change_position(self.board, x_way, y_way, x, y, unit)
-                self.play_board.clean_cell()
-                self.play_board.movement(unit)
+            """переменные повторяются, чтобы различать от куда и куда шёл юнит"""
+            x_way, y_way = x, y
+            xt, yt = self.player_army[self.target]
+            distance = abs(x - xt) + abs(y - yt)
+            if unit.curent_energy < distance - 1:
+                x_way, y_way = self.find_way(unit)
+                unit.moving(self.board, y, x)
+                if isinstance(self.board[x_way][y_way], MovingCell):
+                    self.board[x_way][y_way].change_position(self.board, x_way, y_way, x, y, unit)
+                    self.play_board.clean_cell()
+            else:
+                self.target.coords(xt, yt)
+                self.target.get_board(self.board)
+                """если юнит убил другого юнита, то self.board[self.U_x][self.U_y] = 0"""
+                if isinstance(self.board[x][y], Unit):
+                    unit.get_board(self.board)
+                    unit.coords(x, y)
+                    if self.board[xt][yt].side == 1:
+                        unit.atack(self.target)
+                    else:
+                        self.find_target()
+            self.play_board.movement(unit)
+
 
     def find_way(self, unit):
         x, y = self.army[unit]
         xt, yt = self.player_army[self.target]
-        distance = abs(x - xt) + abs(y - yt)
-        if unit.curent_energy < distance - 1:
-            move_x = abs((x - xt) // 2)
-            move_y = unit.curent_energy - 1 - move_x
-            while move_y < 0:
-                move_y += 1
-            return x + move_x * sing(xt - x), \
-                y + move_y * sing(yt - y)
-        #else:
-
-
-    def atack_close_enamy(self):
-        xt, yt = self.player_army[self.target]
+        move_x = abs((x - xt) // 2) - 1
+        move_y = unit.curent_energy - 1 - move_x
+        while move_y < 0:
+            move_y += 1
+        return x + move_x * sing(xt - x), \
+            y + move_y * sing(yt - y)

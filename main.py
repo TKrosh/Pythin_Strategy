@@ -144,10 +144,10 @@ if __name__ == '__main__':
     board = Board(30, 12)
     board.set_view(0, 200, 50)
     """временно создаём юинитов здесь"""
-    swordman = Swordman()
-    longbowman = LongBow()
-    player_list = [longbowman, swordman]
-    enamy_list = [Evilenemy(), Evilenemy(), Evilenemy()]
+    swordman = Swordman(50)
+    longbowman = LongBow(75)
+    player_list = [swordman, longbowman, Swordman(50)]
+    enamy_list = [Evilenemy(), Evilenemy(), Evilenemy(), Evilenemy()]
     for p_unit in range(len(player_list)):
         board.change(0, p_unit * 2, player_list[p_unit])
     for e_unit in range(len(enamy_list)):

@@ -112,8 +112,27 @@ class Unit:
 
     def check_distance(self, other):
         distance = abs(self.x - other.x) + abs(self.y - other.y)
-        if distance <= self.distance:
+        print('!', distance, self.curent_energy)
+        if distance <= self.curent_energy + 1:
             return True
+        else:
+            return False
+
+    def find_empty_cell(self, other):
+        """позиция защищающегося юнита"""
+        xt, yt = other.x, other.y
+        if yt - 1 >= 0 and not isinstance(self.board[xt][yt - 1], Unit):
+            self.board[xt][yt - 1] = self.board[self.x][self.y]
+            self.board[self.x][self.y] = 0
+        elif xt - 1 >= 0 and not isinstance(self.board[xt - 1][yt], Unit):
+            self.board[xt - 1][yt] = self.board[self.x][self.y]
+            self.board[self.x][self.y] = 0
+        elif xt + 1 < len(self.board) and not isinstance(self.board[xt - 1][yt], Unit):
+            self.board[xt + 1][yt] = self.board[self.x][self.y]
+            self.board[self.x][self.y] = 0
+        elif yt + 1 < len(self.board[0]) and not isinstance(self.board[xt][yt + 1], Unit):
+            self.board[xt ][yt + 1] = self.board[self.x][self.y]
+            self.board[self.x][self.y] = 0
         else:
             return False
 
@@ -132,6 +151,8 @@ class Unit:
         if remain_units <= 0:
             self.death(other)
         else:
+            if other.distance == 1:
+                other.find_empty_cell(self)
             if remain_units % 1 != 0:
                 remain_units = int(remain_units // 1)
                 self.curent_health = self.curent_health - (enamy_damage % self.health)
@@ -143,9 +164,11 @@ class Unit:
 
     def death(self, other):
         self.amount = 0
+        self.board[self.x][self.y] = 0
         if other.distance == 1:
             self.board[self.x][self.y] = self.board[other.x][other.y]
-        self.board[self.x][self.y] = 0
+        self.board[other.x][other.y] = 0
+
 
     """все костыли в одном месте =)"""
     def coords(self, x, y):
@@ -165,7 +188,7 @@ class Unit:
 
 
 class Swordman(Unit):
-    def __init__(self):
+    def __init__(self, amount):
         super().__init__()
         self.image = pygame.image.load('data/brave_sword.png')
         self.x, self.y = 0, 0
@@ -176,7 +199,7 @@ class Swordman(Unit):
 
 
 class LongBow(Unit):
-    def __init__(self):
+    def __init__(self, amount):
         super().__init__()
         self.side = 1
         self.image = pygame.image.load('data/longbow.png')
@@ -191,7 +214,7 @@ class Evilenemy(Unit):
         self.image = pygame.image.load('data/evil_sword.png')
         self.health, self.energy = 21, 10
         self.parametres = self.curent_health, self.damege, self.curent_energy, \
-                          self.protection, self.distance, self.amount = self.health, 7, self.energy, 8, 1, random.randint(40, 100)
+                          self.protection, self.distance, self.amount = self.health, 7, self.energy, 8, 1, 75
         self.target_points = (-1, -1)
 
 
