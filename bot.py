@@ -1,6 +1,7 @@
 import pygame
 from Units import Swordman, Evilenemy, Unit, MovingCell, Evilwithard, LongBow, sing
 
+
 class Intelligence():
     def __init__(self, board):
         self.play_board = board
@@ -58,11 +59,10 @@ class Intelligence():
                         self.find_target()
             self.play_board.movement(unit)
 
-
     def find_way(self, unit):
         x, y = self.army[unit]
         xt, yt = self.player_army[self.target]
-        move_x = abs((x - xt) // 2) - 1
+        move_x = abs((x - xt) // 2)
         move_y = unit.curent_energy - 1 - move_x
         while move_y < 0:
             move_y += 1

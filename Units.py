@@ -113,10 +113,16 @@ class Unit:
     def check_distance(self, other):
         distance = abs(self.x - other.x) + abs(self.y - other.y)
         print('!', distance, self.curent_energy)
-        if distance <= self.curent_energy + 1:
-            return True
-        else:
-            return False
+        if self.distance == 1:
+            if distance <= self.curent_energy + 1:
+                return True
+            else:
+                return False
+        elif self.distance != 1:
+            if distance <= self.distance:
+                return True
+            else:
+                return False
 
     def find_empty_cell(self, other):
         """позиция защищающегося юнита"""

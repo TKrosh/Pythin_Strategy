@@ -1,6 +1,7 @@
 import pygame
 from Units import Swordman, Evilenemy, Unit, MovingCell, Evilwithard, LongBow
 from bot import Intelligence
+from welcome import start_screen
 
 
 class Board:
@@ -138,6 +139,7 @@ class Board:
 if __name__ == '__main__':
     pygame.init()
     size = width, height = 50 * 30, (50 * 12) + 200
+    print(size)
     bg = pygame.image.load('data/battle_fon.png')
     prepared_bg = pygame.transform.scale(bg, (width, height))
     screen = pygame.display.set_mode(size)
@@ -155,6 +157,9 @@ if __name__ == '__main__':
     running = True
     """Галтран - имя полководца противника"""
     Galtran = Intelligence(board)
+    FPS = 60
+    clock = pygame.time.Clock()
+    start_screen(screen,FPS)
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -168,4 +173,5 @@ if __name__ == '__main__':
         screen.blit(prepared_bg, (0, 0))
         board.render(screen)
         pygame.display.flip()
+        clock.tick(FPS)
     pygame.quit()
