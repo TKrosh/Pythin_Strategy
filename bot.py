@@ -8,7 +8,7 @@ class Intelligence():
         self.target = 0
 
     def get_situation(self, board):
-        """где находятся июниты игрока и бота"""
+        """где находятся юниты игрока и бота"""
         self.board = board
         self.army = {}
         self.player_army = {}

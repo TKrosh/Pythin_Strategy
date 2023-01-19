@@ -13,8 +13,7 @@ tile_width = tile_height = 50
 def start_screen(screen, FPS):
     intro_text = ["", "",
                   "Добро пожаловать в демо-версию игры",
-                  "сеёчас вам предстоит пройти тренировочный уровень"]
-
+                  "сейчас вам предстоит пройти тренировочный уровень"]
     #fon = pygame.transform.scale(load_image('fon.jpg'), (size))
     #screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
