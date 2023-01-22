@@ -52,7 +52,7 @@ class Unit:
 
     def show(self, screen, pos_x, pos_y):
         """показать количество юнитов одного класса"""
-        font = pygame.font.SysFont('', 22)
+        font = pygame.font.SysFont('cambria', 22)
         """выбрать шрифт"""
         bg_font = (170, 191, 255)
         """цвет фона"""
