@@ -6,15 +6,20 @@ from Units import Swordman, Evilenemy, Unit, MovingCell, Evilwithard, LongBow
 from welcome import start_screen
 
 
+class resourses:
+    def __init__(self):
+        pass
+
+
 class big_map:
     def __init__(self, width, height):
         self.width = width
         self.height = height
         self.cell_size = 50
-        self.map = [[randint(1, 2) for q in range(width)] for _ in range(height)]
-        """НЕ ЗАБЫТЬ ИСПРАВИТЬ И УБРАТЬ ОТСЮДА ГЕРОЯ"""
+        self.map = [[randint(1, 100) for q in range(width)] for _ in range(height)]
         self.lawn = pygame.image.load('data/lawn.png').convert()
         self.forest = pygame.image.load('data/forest.png').convert()
+        self.mine = pygame.image.load('data/mine.png').convert()
 
     def set_view(self, left, top, cell_size):
         self.left = left
@@ -24,12 +29,18 @@ class big_map:
     def render(self, screen):
         for i in range(self.width):
             for q in range(self.height):
-                x = self.cell_size * i
-                y = self.cell_size * q
-                if self.map[q][i] == 1:
+                x = self.cell_size * i + self.left
+                y = self.cell_size * q + self.top
+                chance = self.map[q][i]
+                if chance <= 55:
+                    #равнина
                     screen.blit(self.lawn, (x, y))
-                elif self.map[q][i] == 2:
+                elif 55 <= chance <= 93:
+                    #лес
                     screen.blit(self.forest, (x, y))
+                elif 93 <= chance <= 100:
+                    #шахты
+                    screen.blit(self.mine, (x, y))
 
 def atack(y, x):
     y_pos = player.rect.y + y * 50
@@ -46,7 +57,7 @@ def atack(y, x):
 
 if __name__ == '__main__':
     pygame.init()
-    size = width, height = 50 * 30, (50 * 12) + 200
+    size = width, height = 50 * 31, (50 * 30)
     screen = pygame.display.set_mode(size)
     map = big_map(30, 20)
     map.set_view(0, 0, 50)
@@ -71,6 +82,8 @@ if __name__ == '__main__':
                 if event.key == pygame.K_DOWN:
                     if atack(1, 0):
                         player.rect.y += 50
+                if event.key == pygame.K_ESCAPE:
+                    start_screen(screen, 60, size)
         map.render(screen)
         player.show(screen)
         enamy.show(screen)
