@@ -1,7 +1,6 @@
 import pygame
 from Units import Swordman, Evilenemy, Unit, MovingCell, Evilwithard, LongBow
 from bot import Intelligence
-from welcome import start_screen
 
 
 class Board:
@@ -142,7 +141,6 @@ def start_battler(screen, player_list, enamy_list, size):
     running = True
     FPS = 60
     clock = pygame.time.Clock()
-    start_screen(screen, FPS)
     board = Board(30, 12)
     board.set_view(0, 200, 50)
     """Галтран - полководц противника"""

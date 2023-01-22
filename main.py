@@ -1,9 +1,10 @@
 import pygame
-from battle_file import start_battler, Board
-from bot import Intelligence
-from Units import Swordman, Evilenemy, Unit, MovingCell, Evilwithard, LongBow
 from random import randint
-from player import main_Player
+from player import main_Player, Enamy
+from battle_file import start_battler
+from Units import Swordman, Evilenemy, Unit, MovingCell, Evilwithard, LongBow
+from welcome import start_screen
+
 
 class big_map:
     def __init__(self, width, height):
@@ -11,7 +12,7 @@ class big_map:
         self.height = height
         self.cell_size = 50
         self.map = [[randint(1, 2) for q in range(width)] for _ in range(height)]
-        """НЕ ЗАБЫТЬ ИСПРАВИТЬ И УБРАТЬ ОТСЯДА ГЕРОЯ"""
+        """НЕ ЗАБЫТЬ ИСПРАВИТЬ И УБРАТЬ ОТСЮДА ГЕРОЯ"""
         self.lawn = pygame.image.load('data/lawn.png').convert()
         self.forest = pygame.image.load('data/forest.png').convert()
 
@@ -25,12 +26,23 @@ class big_map:
             for q in range(self.height):
                 x = self.cell_size * i
                 y = self.cell_size * q
-                pygame.draw.rect(screen, (255, 255, 255),
-                                 ((x, y), (self.cell_size, self.cell_size)), width=1)
                 if self.map[q][i] == 1:
                     screen.blit(self.lawn, (x, y))
                 elif self.map[q][i] == 2:
                     screen.blit(self.forest, (x, y))
+
+def atack(y, x):
+    y_pos = player.rect.y + y * 50
+    x_pos = player.rect.x + x * 50
+    if x_pos == enamy.rect.x and y_pos == enamy.rect.y:
+        swordman = Swordman(50)
+        longbowman = LongBow(75)
+        player_list = [swordman, longbowman, Swordman(50)]
+        enamy_list = [Evilenemy(), Evilenemy(), Evilenemy(), Evilenemy()]
+        start_battler(screen, player_list, enamy_list, size)
+    else:
+        return True
+
 
 if __name__ == '__main__':
     pygame.init()
@@ -39,20 +51,29 @@ if __name__ == '__main__':
     map = big_map(30, 20)
     map.set_view(0, 0, 50)
     running = True
-    player = main_Player()
+    player = main_Player(5, 5)
+    enamy = Enamy(6, 5)
+    start_screen(screen, 60, size)
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    if atack(0, -1):
+                        player.rect.x -= 50
+                if event.key == pygame.K_RIGHT:
+                    if atack(0, 1):
+                        player.rect.x += 50
+                if event.key == pygame.K_UP:
+                    if atack(-1, 0):
+                        player.rect.y -= 50
+                if event.key == pygame.K_DOWN:
+                    if atack(1, 0):
+                        player.rect.y += 50
         map.render(screen)
-        player.show(screen, 10, 10)
+        player.show(screen)
+        enamy.show(screen)
         pygame.display.flip()
     pygame.quit()
-
-    """временно создаём юинитов здесь
-    swordman = Swordman(50)
-    longbowman = LongBow(75)
-    player_list = [swordman, longbowman, Swordman(50)]
-    enamy_list = [Evilenemy(), Evilenemy(), Evilenemy(), Evilenemy()]
-    start_battler(screen, player_list, enamy_list, size)"""
 

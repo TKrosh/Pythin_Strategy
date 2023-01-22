@@ -112,7 +112,6 @@ class Unit:
 
     def check_distance(self, other):
         distance = abs(self.x - other.x) + abs(self.y - other.y)
-        print('!', distance, self.curent_energy)
         if self.distance == 1:
             if distance <= self.curent_energy + 1:
                 return True
@@ -173,7 +172,7 @@ class Unit:
         self.board[self.x][self.y] = 0
         if other.distance == 1:
             self.board[self.x][self.y] = self.board[other.x][other.y]
-        self.board[other.x][other.y] = 0
+            self.board[other.x][other.y] = 0
 
 
     """все костыли в одном месте =)"""

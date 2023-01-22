@@ -6,6 +6,7 @@ class Intelligence():
     def __init__(self, board):
         self.play_board = board
         self.target = 0
+        self.win = False
 
     def get_situation(self, board):
         """где находятся юниты игрока и бота"""
@@ -29,8 +30,11 @@ class Intelligence():
         if close:
             pass
         else:
-            player_army_health = sorted(self.player_army, key=lambda unit: unit.health)
-            self.target = player_army_health[0]
+            if self.player_army:
+                player_army_health = sorted(self.player_army, key=lambda unit: unit.health)
+                self.target = player_army_health[0]
+            else:
+                print('!')
 
     def go(self):
         """передвижение"""

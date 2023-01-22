@@ -7,32 +7,102 @@ def terminate():
     sys.exit()
 
 
+
+
 tile_width = tile_height = 50
 
 
-def start_screen(screen, FPS):
-    intro_text = ["", "",
-                  "Добро пожаловать в демо-версию игры",
-                  "сейчас вам предстоит пройти тренировочный уровень"]
-    #fon = pygame.transform.scale(load_image('fon.jpg'), (size))
-    #screen.blit(fon, (0, 0))
-    font = pygame.font.Font(None, 30)
-    text_coord = tile_width
-    for line in intro_text:
-        string_rendered = font.render(line, 1, pygame.Color('white'))
-        intro_rect = string_rendered.get_rect()
-        text_coord += 10
-        intro_rect.top = text_coord
-        intro_rect.x = 10
-        text_coord += intro_rect.height
-        screen.blit(string_rendered, intro_rect)
+class Window:
+    def __init__(self):
+        self.do = 1
+
+    def render(self, screen, size):
+        if self.do == 1:
+            self.main_window(screen, size)
+        if self.do == 3:
+            self.settings(screen, size)
+        if self.do == 4:
+            self.upload(screen, size)
+
+    def main_window(self, screen, size):
+        intro_text = ["Начать игру", "Настройки", "Загрузить",
+                           "выйти"]
+        image = pygame.image.load('data/main_screen.jpg')
+        font = pygame.font.SysFont('cambria', 35)
+        fon = pygame.transform.scale(image, size)
+        screen.blit(fon, (0, 0))
+        for i in range(len(intro_text)):
+            string_rendered = font.render(intro_text[i], 1, '#000000')
+            screen.blit(string_rendered, (650, i * 100 + 250))
+
+    def settings(self, screen, size):
+        intro_text = ["Полный экран", "Громкость"]
+        image = pygame.image.load('data/main_screen.jpg')
+        font = pygame.font.SysFont('cambria', 35)
+        fon = pygame.transform.scale(image, size)
+        screen.blit(fon, (0, 0))
+        back = font.render('←--', 1, '#000000')
+        screen.blit(back, (0, 0))
+        for i in range(len(intro_text)):
+            string_rendered = font.render(intro_text[i], 1, '#000000')
+            screen.blit(string_rendered, (0, i * 100 + 250))
+
+    def upload(self, screen, size):
+        image = pygame.image.load('data/main_screen.jpg')
+        font = pygame.font.SysFont('cambria', 35)
+        fon = pygame.transform.scale(image, size)
+        screen.blit(fon, (0, 0))
+        back = font.render('←--', 1, '#000000')
+        screen.blit(back, (0, 0))
+
+    def do_button(self, coords):
+        x, y = coords
+        if self.do == 1:
+            if x >= 650 and x <= 850:
+                if y >= 260 and y <= 300:
+                    self.do = 2
+                elif y >= 360 and y <= 400:
+                    self.do = 3
+                elif y >= 460 and y <= 500:
+                    self.do = 4
+                elif y >= 560 and y <= 600:
+                    terminate()
+        elif self.do == 3:
+            print(x, y)
+            if x <= 50 and y <= 50:
+                self.do = 1
+            elif x >= 240:
+                if y >= 250 and y <= 300:
+                    print('!')
+                if y >= 350 and y <= 400:
+                    print('!')
+        elif self.do == 4:
+            print(x, y)
+            if x <= 50 and y <= 50:
+                self.do = 1
+
+    def start_game(self):
+        if self.do == 2:
+            return True
+        else:
+            return False
+
+def upload():
+    pass
+
+def start_screen(screen, FPS, size):
+    window = Window()
     clock = pygame.time.Clock()
+    do = 0
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-            elif event.type == pygame.KEYDOWN or \
-                    event.type == pygame.MOUSEBUTTONDOWN:
-                return
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    window.do_button(event.pos)
+                if window.start_game():
+                    return
+        window.render(screen, size)
         pygame.display.flip()
         clock.tick(FPS)
