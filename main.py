@@ -136,49 +136,50 @@ def drow_space(screen):
     for x, y in stars:
         pygame.draw.rect(screen, ('#FFFFFF'), ((x, y), (2, 2)))
 
-
+start_new_game = False
 stars = []
 if __name__ == '__main__':
     pygame.init()
     size = width, height = 50 * 30, (50 * 12) + 200
     screen = pygame.display.set_mode(size)
-    map = big_map(40, 40)
-    map.set_view(width // 2, height // 2, 50)
-    running = True
-    player = main_Player(size)
-    start_screen(screen, 60, size)
-    while running:
-        drow_space(screen)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    map.get_mouse(event.pos)
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_a:
-                    if map.move(0, -1):
-                        map.camera_move(50, 0)
-                        map.use_resourses(0)
-                if event.key == pygame.K_d:
-                    if map.move(0, 1):
-                        map.camera_move(-50, 0)
-                        map.use_resourses(0)
-                if event.key == pygame.K_w:
-                    if map.move(-1, 0):
-                        map.camera_move(0, 50)
-                        map.use_resourses(0)
-                if event.key == pygame.K_s:
-                    if map.move(1, 0):
-                        map.camera_move(0, -50)
-                        map.use_resourses(0)
-                if event.key == pygame.K_ESCAPE:
-                    start_screen(screen, 60, size)
-                if event.key == pygame.K_e:
-                    map.use_resourses(1)
-        map.render(screen)
-        player.show(screen)
-        map.biutiful_arnament(screen, size)
-        pygame.display.flip()
-    pygame.quit()
+    start_new_game = start_screen(screen, 60, size)
+    if start_new_game:
+        map = big_map(40, 40)
+        map.set_view(width // 2, height // 2, 50)
+        running = True
+        player = main_Player(size)
+        while running:
+            drow_space(screen)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        map.get_mouse(event.pos)
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_a:
+                        if map.move(0, -1):
+                            map.camera_move(50, 0)
+                            map.use_resourses(0)
+                    if event.key == pygame.K_d:
+                        if map.move(0, 1):
+                            map.camera_move(-50, 0)
+                            map.use_resourses(0)
+                    if event.key == pygame.K_w:
+                        if map.move(-1, 0):
+                            map.camera_move(0, 50)
+                            map.use_resourses(0)
+                    if event.key == pygame.K_s:
+                        if map.move(1, 0):
+                            map.camera_move(0, -50)
+                            map.use_resourses(0)
+                    if event.key == pygame.K_ESCAPE:
+                        start_screen(screen, 60, size)
+                    if event.key == pygame.K_e:
+                        map.use_resourses(1)
+            map.render(screen)
+            player.show(screen)
+            map.biutiful_arnament(screen, size)
+            pygame.display.flip()
+        pygame.quit()
 

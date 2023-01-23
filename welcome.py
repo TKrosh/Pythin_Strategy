@@ -102,7 +102,7 @@ def start_screen(screen, FPS, size):
                 if event.button == 1:
                     window.do_button(event.pos)
                 if window.start_game():
-                    return
+                    return True
         window.render(screen, size)
         pygame.display.flip()
         clock.tick(FPS)
