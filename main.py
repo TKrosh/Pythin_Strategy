@@ -81,15 +81,21 @@ class big_map:
         self.x_move += xm
         self.y_move += ym
 
+    def enamy_move(self):
+        for e in enamy_list:
+            x, y = e.get_coords()
+            e.rect.x = self.x_move + x * 50
+            e.rect.y = self.y_move + y * 50
+
     def move(self, y, x):
         y_pos = player.rect.y + y * 50
         x_pos = player.rect.x + x * 50
-        """if x_pos == enamy.rect.x and y_pos == enamy.rect.y:
-            swordman = Swordman(50)
-            longbowman = LongBow(75)
-            player_list = [swordman, longbowman, Swordman(50)]
-            enamy_list = [Evilenemy(), Evilenemy(), Evilenemy(), Evilenemy()]
-            start_battler(screen, player_list, enamy_list, size)"""
+        for enemy in enamy_list:
+            if x_pos == enemy.rect.x and y_pos == enemy.rect.y:
+                swordman = Swordman(50)
+                longbowman = LongBow(75)
+                player_list = [swordman, longbowman, Swordman(50)]
+                start_battler(screen, player_list, enemy, size)
         if x_pos - self.x_move <= -50 or y_pos - self.y_move <= -50:
             return False
         elif x_pos + self.x_move * -1 >= self.width * 50 or y_pos + self.y_move * -1 >= self.height * 50:
@@ -115,6 +121,7 @@ class big_map:
         else:
             self.map[self.xl][self.yl].hide_info()
 
+
     def new_turn(self):
         player.get_profit()
 
@@ -136,7 +143,20 @@ def drow_space(screen):
     for x, y in stars:
         pygame.draw.rect(screen, ('#FFFFFF'), ((x, y), (2, 2)))
 
+
+def show_enamy(screen):
+    for e in enamy_list:
+        e.show(screen)
+
+
 start_new_game = False
+enamy_list = []
+for x in range(8, 41, 8):
+    for y in range(5, 41, 5):
+        small_group = []
+        for _ in range(4):
+            small_group.append(Evilenemy())
+        enamy_list.append(Enamy(x, y, small_group))
 stars = []
 if __name__ == '__main__':
     pygame.init()
@@ -179,6 +199,8 @@ if __name__ == '__main__':
                         map.use_resourses(1)
             map.render(screen)
             player.show(screen)
+            map.enamy_move()
+            show_enamy(screen)
             map.biutiful_arnament(screen, size)
             pygame.display.flip()
         pygame.quit()

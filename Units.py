@@ -52,7 +52,7 @@ class Unit:
 
     def show(self, screen, pos_x, pos_y):
         """показать количество юнитов одного класса"""
-        font = pygame.font.SysFont('cambria', 22)
+        font = pygame.font.SysFont('bahnschrift', 15)
         """выбрать шрифт"""
         bg_font = (170, 191, 255)
         """цвет фона"""
@@ -61,7 +61,7 @@ class Unit:
         y, x = pos_y * 50 + 15, pos_x * 50 + 239
         screen.blit(self.image, (pos_y * 50, pos_x * 50 + 200))
         pygame.draw.rect(screen, bg_font, ((y, x), (26, 10)), width=0)
-        screen.blit(amount_units, (y, x))
+        screen.blit(amount_units, (y, x - 4))
         if self.choosen_Unit:
             self.showinfo(screen)
 
