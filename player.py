@@ -6,7 +6,8 @@ class main_Player:
         x, y = size
         super().__init__()
         self.army = []
-        self.food, self.wood, self.mettal = 10, 10, 10
+        self.extract_food, self.extract_wood, self.extract_mettal = 0, 0, 0
+        self.food, self.wood, self.mettal = 10, 20, 10
         self.image = pygame.image.load('data/player.png')
         self.rect = self.image.get_rect().move(
             x // 2, y // 2)
@@ -19,6 +20,11 @@ class main_Player:
 
     def show(self, screen):
         screen.blit(self.image, (self.rect.x, self.rect.y))
+
+    def get_profit(self):
+        self.food += self.extract_food
+        self.wood += self.extract_wood
+        self.mettal += self.extract_mettal
 
 
 class Enamy:

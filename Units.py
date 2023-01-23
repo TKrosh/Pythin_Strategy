@@ -80,7 +80,7 @@ class Unit:
         """вывод информации о юните"""
         infoimage = pygame.image.load('data/unitinfo.png')
         screen.blit(infoimage, (0, 0))
-        font = pygame.font.SysFont('', 22)
+        font = pygame.font.SysFont('cambria', 22)
         for i in range(5):
             amount_units = font.render(str(self.parametres[i]), (0, 0, 0), (0, 0, 0))
             y, x = 180, i * 40 + 10
