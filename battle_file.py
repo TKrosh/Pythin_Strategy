@@ -5,6 +5,7 @@ from bot import Intelligence
 
 class Board:
     def __init__(self, width, height):
+        self.player_wins, self.bot_wins = False, False
         self.width = width
         self.height = height
         self.board = [[0] * width for _ in range(height)]
@@ -103,9 +104,7 @@ class Board:
 
     def check_winner(self):
         if not any([unit.amount for unit in enamy_l]):
-            print('protivnik umer')
-        if not any([unit.amount for unit in player_l]):
-            print('igrok umer')
+            self.player_wins = True
 
 
     def delete_info(self, other):
@@ -121,6 +120,9 @@ class Board:
         for unit in self.used_units:
             unit.refresh()
         self.used_units.clear()
+        """если бот победил"""
+        if galtran.bot_wins:
+            self.bot_wins = True
         if self.turn == 1:
             galtran.get_situation(self.board)
             self.turn = 0
@@ -161,9 +163,12 @@ def start_battler(screen, player_list, enamy_list, size):
                     board.get_click(event.pos, 0)
                 if event.button == 3:
                     board.get_click(event.pos, 1)
+            if board.player_wins:
+                return 1
+            if board.bot_wins:
+                return 0
         screen.blit(prepared_bg, (0, 0))
         board.render(screen)
         pygame.display.flip()
         clock.tick(FPS)
-    pygame.quit()
 

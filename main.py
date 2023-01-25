@@ -88,14 +88,26 @@ class big_map:
             e.rect.y = self.y_move + y * 50
 
     def move(self, y, x):
+        player_win = False
         y_pos = player.rect.y + y * 50
         x_pos = player.rect.x + x * 50
-        for enemy in enamy_list:
+        for i in range(len(enamy_list)):
+            enemy = enamy_list[i]
             if x_pos == enemy.rect.x and y_pos == enemy.rect.y:
                 swordman = Swordman(50)
                 longbowman = LongBow(75)
                 player_list = [swordman, longbowman, Swordman(50)]
-                start_battler(screen, player_list, enemy, size)
+                res = start_battler(screen, player_list, enemy, size)
+                if res == 1:
+                    player_win = True
+                    dead_army = i
+                    break
+                else:
+                    """поражение в игре"""
+        if player_win:
+            enamy_list.pop(dead_army)
+        if len(enamy_list) == 0:
+            print('Вы выиграли')
         if x_pos - self.x_move <= -50 or y_pos - self.y_move <= -50:
             return False
         elif x_pos + self.x_move * -1 >= self.width * 50 or y_pos + self.y_move * -1 >= self.height * 50:
@@ -104,6 +116,7 @@ class big_map:
             return True
 
     def use_resourses(self, p, buy=0, x_m=None, y_m=None):
+        """находим ячеёка с ресурсом"""
         y = (player.rect.x - self.x_move) // 50
         x = (player.rect.y - self.y_move) // 50
         self.show_res_info = True, x, y
@@ -118,8 +131,6 @@ class big_map:
             else:
                 self.map[x][y].show_info()
                 self.xl, self.yl = x, y
-        else:
-            self.map[self.xl][self.yl].hide_info()
 
 
     def new_turn(self):
@@ -150,13 +161,15 @@ def show_enamy(screen):
 
 
 start_new_game = False
+enamy_list = [Enamy(7, 4, [Evilenemy()])]
+"""
 enamy_list = []
-for x in range(8, 41, 8):
-    for y in range(5, 41, 5):
+for x in range(7, 41, 8):
+    for y in range(4, 41, 5):
         small_group = []
         for _ in range(4):
             small_group.append(Evilenemy())
-        enamy_list.append(Enamy(x, y, small_group))
+        enamy_list.append(Enamy(x, y, small_group))"""
 stars = []
 if __name__ == '__main__':
     pygame.init()
@@ -197,9 +210,10 @@ if __name__ == '__main__':
                         start_screen(screen, 60, size)
                     if event.key == pygame.K_e:
                         map.use_resourses(1)
+
             map.render(screen)
-            player.show(screen)
             map.enamy_move()
+            player.show(screen)
             show_enamy(screen)
             map.biutiful_arnament(screen, size)
             pygame.display.flip()

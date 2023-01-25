@@ -5,6 +5,7 @@ from Units import Swordman, Evilenemy, Unit, MovingCell, Evilwithard, LongBow, s
 class Intelligence():
     def __init__(self, board):
         self.play_board = board
+        self.bot_wins = False
         self.target = 0
         self.win = False
 
@@ -23,7 +24,8 @@ class Intelligence():
                     else:
                         self.army[cell] = (x, y)
         self.find_target()
-        self.go()
+        if not self.bot_wins:
+            self.go()
 
     def find_target(self, close=False):
         """поиск боту цели"""
@@ -34,7 +36,7 @@ class Intelligence():
                 player_army_health = sorted(self.player_army, key=lambda unit: unit.health)
                 self.target = player_army_health[0]
             else:
-                print('!')
+                self.bot_wins = True
 
     def go(self):
         """передвижение"""
