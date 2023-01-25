@@ -131,6 +131,8 @@ class big_map:
             else:
                 self.map[x][y].show_info()
                 self.xl, self.yl = x, y
+        else:
+            self.map[self.xl][self.yl].hide_info()
 
 
     def new_turn(self):
