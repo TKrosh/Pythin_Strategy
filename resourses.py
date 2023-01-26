@@ -3,6 +3,7 @@ import pygame
 
 class Resourses:
     def __init__(self):
+        self.isbarak = False
         self.font = pygame.font.SysFont('cambria', 20)
         self.used_res = pygame.image.load('data/wood.png')
         self.return_res = 0
@@ -10,6 +11,7 @@ class Resourses:
         self.info = ''
         self.color = '#000000'
         self.show_d = False
+        self.show_warriors = False
 
     def show(self, screen, x, y):
         screen.blit(self.image, (x, y))
@@ -43,6 +45,7 @@ class Resourses:
 
     def build_barrakes(self):
         pass
+
 
 class Forest(Resourses):
     def __init__(self):
@@ -82,8 +85,14 @@ class Lawn(Resourses):
 
     def build_barrakes(self, other):
         if other.wood >= self.barraks_cost and self.not_using:
+            self.isbarak = True
             self.not_using = False
+            other.wood -= self.barraks_cost
             self.image = pygame.image.load('data/barraks.png').convert()
+
+    def hire_warriors(self, other, screen, size):
+        x, y = size
+        pygame.draw.rect(screen, ('#C6B472'), ((x - 200, 210), (200, 200)))
 
 
 class Mine(Resourses):

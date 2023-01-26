@@ -7,7 +7,8 @@ class main_Player:
         super().__init__()
         self.army = []
         self.extract_food, self.extract_wood, self.extract_mettal = 0, 0, 0
-        self.food, self.wood, self.mettal = 10, 20, 10
+        """дерева изначально 20"""
+        self.food, self.wood, self.mettal = 10, 400, 10
         self.image = pygame.image.load('data/player.png')
         self.rect = self.image.get_rect().move(
             x // 2, y // 2)

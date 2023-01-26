@@ -51,7 +51,10 @@ class big_map:
                 self.map[q][i].show(screen, x, y)
         if self.show_res_info:
             x, y = self.show_res_info[1:3]
-            self.map[x][y].show_dialog(screen, size)
+            if self.map[x][y].isbarak and self.map[x][y].show_warriors:
+                self.map[x][y].hire_warriors(player, screen, size)
+            else:
+                self.map[x][y].show_dialog(screen, size)
 
     def biutiful_arnament(self, screen, size):
         font = pygame.font.SysFont('cambria', 22)
@@ -64,7 +67,8 @@ class big_map:
             resourses_info = font.render(str(player_resourses[i]), 1, (0, 0, 0))
             screen.blit(self.resourses_ims[i], (i * 200 + 200, y - 30))
             screen.blit(resourses_info, (i * 200 + 230, y - 30))
-        pygame.draw.rect(screen, ('#b4b4b4'), ((x - 240, 0), (240, 200)))
+        pygame.draw.rect(screen, ('#b4b4b4'), ((x - 245, 0), (245, 205)))
+        """мини-карта"""
         for i in range(self.width):
             for q in range(self.height):
                 x_mini = i + x - (240 - 5 * i)
@@ -115,22 +119,33 @@ class big_map:
         else:
             return True
 
-    def use_resourses(self, p, buy=0, x_m=None, y_m=None):
-        """находим ячеёка с ресурсом"""
+    def use_resourses(self, player_move, buy=0, x_m=None, y_m=None):
+        """player_move - необходимо для того, чтобы после хода информация изчезалп"""
+        """buy - необходима, чтобы при нажатии на 'e' игра не пыталась ничего купить а лишь показывали"""
+        """находим ячейку ресурса"""
         y = (player.rect.x - self.x_move) // 50
         x = (player.rect.y - self.y_move) // 50
         self.show_res_info = True, x, y
-        if p:
-            if buy:
-                wight, leght = size
-                if x_m >= wight - 200:
-                    if 215 <= y_m <= 275:
-                        self.map[x][y].start_work(player)
-                    if 300 <= y_m <= 350:
-                        self.map[x][y].build_barrakes(player)
+        if player_move:
+            if buy == 1:
+                if self.map[x][y].show_d:
+                    wight, leght = size
+                    if x_m >= wight - 200:
+                        if 215 <= y_m <= 275:
+                            self.map[x][y].start_work(player)
+                            self.map[self.xl][self.yl].hide_info()
+                        if 300 <= y_m <= 350:
+                            self.map[x][y].build_barrakes(player)
+                            self.map[self.xl][self.yl].hide_info()
             else:
-                self.map[x][y].show_info()
-                self.xl, self.yl = x, y
+                if self.map[x][y].isbarak:
+                    if self.map[x][y].show_warriors:
+                        self.map[x][y].show_warriors = False
+                    else:
+                        self.map[x][y].show_warriors = True
+                else:
+                    self.map[x][y].show_info()
+                    self.xl, self.yl = x, y
         else:
             self.map[self.xl][self.yl].hide_info()
 
@@ -163,15 +178,13 @@ def show_enamy(screen):
 
 
 start_new_game = False
-enamy_list = [Enamy(7, 4, [Evilenemy()])]
-"""
 enamy_list = []
 for x in range(7, 41, 8):
     for y in range(4, 41, 5):
         small_group = []
         for _ in range(4):
             small_group.append(Evilenemy())
-        enamy_list.append(Enamy(x, y, small_group))"""
+        enamy_list.append(Enamy(x, y, small_group))
 stars = []
 if __name__ == '__main__':
     pygame.init()
