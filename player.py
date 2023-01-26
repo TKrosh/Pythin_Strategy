@@ -1,5 +1,6 @@
 import pygame
 from Units import Swordman, Evilenemy, Unit, MovingCell, Evilwithard, LongBow
+from random import randint
 
 class main_Player:
     def __init__(self, size):
@@ -82,5 +83,4 @@ class Enamy:
         screen.blit(self.image, (self.rect.x, self.rect.y))
 
     def get_stronger(self):
-        for i in self.army:
-            i.add_warrior()
+        self.army[randint(0, 3)].add_warrior()
