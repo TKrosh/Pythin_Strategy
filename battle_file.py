@@ -104,6 +104,14 @@ class Board:
 
     def check_winner(self):
         if not any([unit.amount for unit in enamy_l]):
+            player_army = []
+            for x in range(self.width):
+                for y in range(self.height):
+                    unit = self.board[y][x]
+                    if isinstance(unit, Unit):
+                        if unit.side != 0:
+                            player_army.append(unit)
+            player_l = player_army
             self.player_wins = True
 
 
@@ -123,9 +131,9 @@ class Board:
         """если бот победил"""
         if galtran.bot_wins:
             self.bot_wins = True
+        """смена ходов отсюда"""
         if self.turn == 1:
             galtran.get_situation(self.board)
-            self.turn = 0
         else:
             self.turn = 1
 
@@ -164,9 +172,10 @@ def start_battler(screen, player_list, enamy_list, size):
                 if event.button == 3:
                     board.get_click(event.pos, 1)
             if board.player_wins:
-                return 1
+                """1 - выиграл игрок, player_l - оставшиеся войны"""
+                return 1, player_l
             if board.bot_wins:
-                return 0
+                return 0, []
         screen.blit(prepared_bg, (0, 0))
         board.render(screen)
         pygame.display.flip()

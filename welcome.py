@@ -25,7 +25,7 @@ class Window:
             self.upload(screen, size)
 
     def main_window(self, screen, size):
-        intro_text = ["Начать игру", "Настройки", "Загрузить",
+        intro_text = ["Начать игру", "Обучение", "Загрузить",
                            "выйти"]
         image = pygame.image.load('data/main_screen.jpg')
         font = pygame.font.SysFont('cambria', 35)
@@ -36,7 +36,21 @@ class Window:
             screen.blit(string_rendered, (650, i * 100 + 250))
 
     def settings(self, screen, size):
-        intro_text = ["Полный экран", "Громкость"]
+        intro_text = ["В игре вы можете нажать esc и выйти в  гланое меню",
+                      "у вас есть 3 вида русурсов они показаны в нижней части экрана",
+                      "передвижение осуществляется на кнопки WASD",
+                      "чтобы взаимодействовать с клеткой нажмите E",
+                      "чтобы посторит что-нибудь нажмите на надпись или на цену в открывшемся окне",
+                      "колличество простивников с каждым ходом увеличивается на 1 в каждом из 4х отрядов",
+                      "если вы проиграли бой, вы продолжаете играть, но теперь вам нужно заново набирать армию",
+                      "в игре присутствует мини карта со всеми ресурсами",
+                      "сохранений пока нет, но будут в патче 1.1",
+                      "ВАЖНО! Каждый ваш солдат потребляет единицу еды, в случае, если она кончиться,"
+                      "каждый новый ход будет умирать 1 онит из случайного отряда",
+                      "пока не будет хватать еды",
+                      "время в игре очень важно, ибо калличество полей ограничено, а колличество врагов нет",
+                      "после боя их кол-во восполняется полностью и ПродолжаЕт расти",
+                      "проятной игрыБ приношу свои извинения за недоработки"]
         image = pygame.image.load('data/main_screen.jpg')
         font = pygame.font.SysFont('cambria', 35)
         fon = pygame.transform.scale(image, size)
@@ -44,8 +58,8 @@ class Window:
         back = font.render('←--', 1, '#000000')
         screen.blit(back, (0, 0))
         for i in range(len(intro_text)):
-            string_rendered = font.render(intro_text[i], 1, '#000000')
-            screen.blit(string_rendered, (0, i * 100 + 250))
+            string_rendered = font.render(intro_text[i], 1, '#FFFFFF')
+            screen.blit(string_rendered, (0, i * 50 + 30))
 
     def upload(self, screen, size):
         image = pygame.image.load('data/main_screen.jpg')
@@ -88,7 +102,24 @@ class Window:
             return False
 
 def upload():
+    """тут должны были бы быть сохнанения ((("""
     pass
+
+def end(screen, size):
+    screen
+    intro_text = [" Вы победили", "Спасибо за игру"]
+    image = pygame.image.load('data/main_screen.jpg')
+    font = pygame.font.SysFont('cambria', 35)
+    fon = pygame.transform.scale(image, size)
+    screen.blit(fon, (0, 0))
+    for i in range(len(intro_text)):
+        string_rendered = font.render(intro_text[i], 1, '#000000')
+        screen.blit(string_rendered, (650, i * 100 + 250))
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+        pygame.display.flip()
 
 def start_screen(screen, FPS, size):
     window = Window()

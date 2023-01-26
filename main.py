@@ -3,12 +3,13 @@ from random import randint
 from player import main_Player, Enamy
 from battle_file import start_battler
 from Units import Swordman, Evilenemy, Unit, MovingCell, Evilwithard, LongBow
-from welcome import start_screen
+from welcome import start_screen, end
 from resourses import Forest, Lawn, Mine
 
 
 class big_map:
     def __init__(self, width, height):
+        self.end_of_it = False
         self.show_res_info = False, 0, 0
         self.xl, self.yl = -1, -1
         self.x_move, self.y_move = 0, 0
@@ -51,8 +52,9 @@ class big_map:
                 self.map[q][i].show(screen, x, y)
         if self.show_res_info:
             x, y = self.show_res_info[1:3]
-            if self.map[x][y].isbarak and self.map[x][y].show_warriors:
-                self.map[x][y].hire_warriors(player, screen, size)
+            if self.map[x][y].isbarak:
+                if self.map[x][y].show_warriors:
+                    self.map[x][y].hire_warriors(screen, size)
             else:
                 self.map[x][y].show_dialog(screen, size)
 
@@ -67,6 +69,19 @@ class big_map:
             resourses_info = font.render(str(player_resourses[i]), 1, (0, 0, 0))
             screen.blit(self.resourses_ims[i], (i * 200 + 200, y - 30))
             screen.blit(resourses_info, (i * 200 + 230, y - 30))
+        if player.army:
+            for unit in player.army:
+                info = font.render(str(unit.amount), 1, (0, 0, 0))
+                if isinstance(unit, Swordman):
+                    im1 = pygame.image.load('data/brave_sword.png')
+                    sword = pygame.transform.scale(im1, (31, 31))
+                    screen.blit(sword, (800, y - 30))
+                    screen.blit(info, (830, y - 30))
+                if isinstance(unit, LongBow):
+                    im2 = pygame.image.load('data/longbow.png')
+                    bow = pygame.transform.scale(im2, (31, 31))
+                    screen.blit(bow, (1000, y - 30))
+                    screen.blit(info, (1030, y - 30))
         pygame.draw.rect(screen, ('#b4b4b4'), ((x - 245, 0), (245, 205)))
         """мини-карта"""
         for i in range(self.width):
@@ -98,20 +113,22 @@ class big_map:
         for i in range(len(enamy_list)):
             enemy = enamy_list[i]
             if x_pos == enemy.rect.x and y_pos == enemy.rect.y:
-                swordman = Swordman(50)
-                longbowman = LongBow(75)
-                player_list = [swordman, longbowman, Swordman(50)]
-                res = start_battler(screen, player_list, enemy, size)
-                if res == 1:
-                    player_win = True
-                    dead_army = i
-                    break
-                else:
-                    """поражение в игре"""
+                try:
+                    res = start_battler(screen, player.army, enemy, size)
+                    if res[0] == 1:
+                        player_win = True
+                        dead_army = i
+                        player.alive_army(res[1])
+                        break
+                    else:
+                        player.alive_army(res[1])
+                    player.delete_group()
+                except Exception:
+                    pass
         if player_win:
             enamy_list.pop(dead_army)
         if len(enamy_list) == 0:
-            print('Вы выиграли')
+            self.end_of_it = True
         if x_pos - self.x_move <= -50 or y_pos - self.y_move <= -50:
             return False
         elif x_pos + self.x_move * -1 >= self.width * 50 or y_pos + self.y_move * -1 >= self.height * 50:
@@ -131,12 +148,20 @@ class big_map:
                 if self.map[x][y].show_d:
                     wight, leght = size
                     if x_m >= wight - 200:
-                        if 215 <= y_m <= 275:
-                            self.map[x][y].start_work(player)
-                            self.map[self.xl][self.yl].hide_info()
-                        if 300 <= y_m <= 350:
-                            self.map[x][y].build_barrakes(player)
-                            self.map[self.xl][self.yl].hide_info()
+                        if self.map[x][y].isbarak:
+                            if 215 <= y_m <= 275:
+                                self.map[x][y].buy_swordman(player)
+                                self.map[self.xl][self.yl].hide_info()
+                            if 300 <= y_m <= 350:
+                                self.map[x][y].buy_bowman(player)
+                                self.map[self.xl][self.yl].hide_info()
+                        else:
+                            if 215 <= y_m <= 275:
+                                self.map[x][y].start_work(player)
+                                self.map[self.xl][self.yl].hide_info()
+                            if 300 <= y_m <= 350:
+                                self.map[x][y].build_barrakes(player)
+                                self.map[self.xl][self.yl].hide_info()
             else:
                 if self.map[x][y].isbarak:
                     if self.map[x][y].show_warriors:
@@ -151,6 +176,8 @@ class big_map:
 
 
     def new_turn(self):
+        for i in enamy_list:
+            i.get_stronger()
         player.get_profit()
 
     def get_mouse(self, mouse):
@@ -177,16 +204,17 @@ def show_enamy(screen):
         e.show(screen)
 
 
-start_new_game = False
-enamy_list = []
-for x in range(7, 41, 8):
-    for y in range(4, 41, 5):
-        small_group = []
-        for _ in range(4):
-            small_group.append(Evilenemy())
-        enamy_list.append(Enamy(x, y, small_group))
+
 stars = []
 if __name__ == '__main__':
+    start_new_game = False
+    enamy_list = []
+    for x in range(7, 41, 8):
+        for y in range(4, 41, 5):
+            small_group = []
+            for _ in range(4):
+                small_group.append(Evilenemy())
+            enamy_list.append(Enamy(x, y, small_group))
     pygame.init()
     size = width, height = 50 * 30, (50 * 12) + 200
     screen = pygame.display.set_mode(size)
@@ -225,12 +253,14 @@ if __name__ == '__main__':
                         start_screen(screen, 60, size)
                     if event.key == pygame.K_e:
                         map.use_resourses(1)
-
+            if map.end_of_it:
+                end(screen, size)
             map.render(screen)
             map.enamy_move()
             player.show(screen)
             show_enamy(screen)
             map.biutiful_arnament(screen, size)
             pygame.display.flip()
+
         pygame.quit()
 

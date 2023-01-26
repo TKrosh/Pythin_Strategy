@@ -191,26 +191,34 @@ class Unit:
     def get_board(self, board):
         self.board = board
 
+    def add_warrior(self):
+        self.amount += 1
+
+    def unit_dead(self):
+        self.amount -= 1
+
 
 class Swordman(Unit):
-    def __init__(self, amount):
+    def __init__(self):
         super().__init__()
         self.image = pygame.image.load('data/brave_sword.png')
+        self.eating = 2
         self.x, self.y = 0, 0
         self.side = 1
         self.health, self.energy = 20, 9
         self.curent_health, self.damege, self.curent_energy, \
-                          self.protection, self.distance, self.amount = self.health, 6, self.energy, 8, 1, 123
+                          self.protection, self.distance, self.amount = self.health, 6, self.energy, 8, 1, 1
 
 
 class LongBow(Unit):
-    def __init__(self, amount):
+    def __init__(self):
         super().__init__()
+        self.eating = 1
         self.side = 1
         self.image = pygame.image.load('data/longbow.png')
         self.health, self.energy = 12, 6
         self.curent_health, self.damege, self.curent_energy, \
-                          self.protection, self.distance, self.amount = self.health, 8, self.energy, 4, 12, 55
+                          self.protection, self.distance, self.amount = self.health, 8, self.energy, 4, 12, 1
 
 
 class Evilenemy(Unit):
@@ -219,7 +227,7 @@ class Evilenemy(Unit):
         self.image = pygame.image.load('data/evil_sword.png')
         self.health, self.energy = 21, 10
         self.parametres = self.curent_health, self.damege, self.curent_energy, \
-                          self.protection, self.distance, self.amount = self.health, 7, self.energy, 8, 1, 75
+                          self.protection, self.distance, self.amount = self.health, 7, self.energy, 8, 1, 1
         self.target_points = (-1, -1)
 
 
@@ -229,6 +237,6 @@ class Evilwithard(Unit):
         self.image = pygame.image.load('data/evil_withard.png')
         self.health, self.energy = 10, 7
         self.curent_health, self.damege, self.curent_energy, \
-                self.protection, self.distance, self.amount = self.health, 12, 4, 0, 15, 25
+                self.protection, self.distance, self.amount = self.health, 12, 4, 0, 15, 5
         self.target_points = (-1, -1)
 

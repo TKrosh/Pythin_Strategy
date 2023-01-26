@@ -36,6 +36,7 @@ class Intelligence():
                 player_army_health = sorted(self.player_army, key=lambda unit: unit.health)
                 self.target = player_army_health[0]
             else:
+                print('!')
                 self.bot_wins = True
 
     def go(self):
